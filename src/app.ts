@@ -1,8 +1,11 @@
-import fastify from "fastify";
-export const app = fastify();
+import http from "node:http";
 import { env } from "./env";
 import { Pool, Client } from "pg";
 
+import appRoutes from "./http/routes";
+export const app = http.createServer(appRoutes);
+
+// open connection BD PostGres
 const credentials = {
   user: env.USER_DATABASE,
   host: env.HOST,
