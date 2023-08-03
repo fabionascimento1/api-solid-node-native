@@ -6,11 +6,11 @@ import { authenticationRoutes } from "./routes/authentication/routes-authenticai
 
 const DEFAULT_HEADER = { "content-type": "application/json" };
 
-const heroUsers = userRoutes();
+const users = userRoutes();
 const auth = authenticationRoutes();
 
 const allRoutes = {
-  ...heroUsers,
+  ...users,
   ...auth,
   default: (request: IncomingMessage, response: ServerResponse) => {
     response.writeHead(404, DEFAULT_HEADER);
