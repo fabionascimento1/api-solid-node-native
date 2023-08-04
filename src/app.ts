@@ -3,6 +3,7 @@ import { env } from "./env";
 import { Pool, Client } from "pg";
 
 import appRoutes from "./http/routes";
+import { createTable } from "./db/schema";
 export const app = http.createServer(appRoutes);
 
 // open connection BD PostGres
@@ -17,19 +18,11 @@ export const credentials = {
 async function poolDemo() {
   const pool = new Pool(credentials);
   const now = await pool.query("SELECT NOW()");
-  /* const createTable = `
-  CREATE TABLE users(
-    id SERIAL PRIMARY KEY,
-    name VARCHAR (50) UNIQUE NOT NULL,
-    email VARCHAR (20) NOT NULL,
-    password VARCHAR (20) NOT NULL
-  );
-  
-`;
-  const createResult = await pool.query(createTable);
-  console.log({ createResult }); */
+  try {
+    const createResult = await pool.query(createTable);
+    console.log({ createResult });
+  } catch (error) {}
   await pool.end();
-
   return now;
 }
 

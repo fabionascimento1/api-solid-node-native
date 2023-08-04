@@ -15,35 +15,33 @@ export const userRoutes = () => ({
   "/users:post": register,
 });
 
-async function register(request: IncomingMessage, response: ServerResponse) {
-  const { statusCode } = response;
+async function register(req: IncomingMessage, res: ServerResponse) {
+  const { statusCode } = res;
   let body = "";
-  let row: [] = [];
   const registerBodySchema = z.object({
     name: z.string(),
     email: z.string().email(),
     password: z.string().min(6),
   });
 
-  request
-    .on("data", (data) => {
-      body += data;
-    })
-    .on("end", () => {
-      body = JSON.parse(body);
-      const { name, email, password } = body;
+  req.on("data", async (data) => {
+    body += data.toString();
+  });
+  req.on("end", async () => {
+    try {
+      const { name, email, password } = JSON.parse(body);
       const pool = new Pool(credentials);
-      pool.query(
+      const result = await pool.query(
         "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *",
-        [name, email, password],
-        (error, results) => {
-          if (error) {
-            throw error;
-          }
-          if (statusCode === 200) response.write(JSON.stringify(row));
-        }
+        [name, email, password]
       );
-    });
-
-  return response.end();
+      res.write(JSON.stringify(result.rows));
+      return res.end();
+    } catch (err) {
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({ error: "Erro ao inserir usuário no banco de dados" })
+      );
+    }
+  });
 }
